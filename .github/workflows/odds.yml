@@ -1,0 +1,65 @@
+name: Fetch odds and deploy
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Times are UTC. Tuesday morning for midweek rounds, Thursday and Friday evening, Saturday morning.
+    - cron: "0 8 * * 2"
+    - cron: "0 18 * * 4,5"
+    - cron: "0 8 * * 6"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch odds
+        if: github.event_name != 'push'
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: node scripts/fetch-odds.mjs
+
+      - name: Save odds to the repo
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add odds.json
+          git diff --cached --quiet || (git commit -m "Update odds" && git push)
+
+      - name: Prepare site
+        run: |
+          mkdir -p _site
+          cp index.html odds.json icon.svg apple-touch-icon.png _site/
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

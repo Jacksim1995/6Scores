@@ -1,0 +1,992 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Correct Score Picker</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Score Picker">
+<meta name="theme-color" content="#146b46">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column like a coupon — summary slip on top, six fixture cards below */
+:root {
+  --bg: #eef2ee;
+  --surface: #ffffff;
+  --ink: #14202a;
+  --muted: #5a6963;
+  --line: #d5ddd7;
+  --accent: #146b46;
+  --accent-ink: #ffffff;
+  --pick-bg: #fff0c7;
+  --pick-ink: #5e4100;
+  --home: #146b46;
+  --draw: #8a9690;
+  --away: #2f5d8a;
+  --bad: #b3261e;
+  --font-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1613; --surface: #16211d; --ink: #e6ede8; --muted: #94a39c; --line: #2a3832;
+    --accent: #4fc28b; --accent-ink: #062014; --pick-bg: #3b2f0f; --pick-ink: #f4cc6a;
+    --home: #4fc28b; --draw: #6c7a73; --away: #77a7d6; --bad: #ff8a80; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1613; --surface: #16211d; --ink: #e6ede8; --muted: #94a39c; --line: #2a3832;
+  --accent: #4fc28b; --accent-ink: #062014; --pick-bg: #3b2f0f; --pick-ink: #f4cc6a;
+  --home: #4fc28b; --draw: #6c7a73; --away: #77a7d6; --bad: #ff8a80; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; }
+[hidden] { display: none !important; }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.45;
+}
+.wrap {
+  max-width: 640px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+header h1 {
+  font-family: var(--font-display); font-weight: 700; font-size: 2.1rem;
+  letter-spacing: 0.01em; line-height: 1; margin: 0 0 6px; text-transform: uppercase;
+  text-wrap: balance;
+}
+header p { margin: 0; color: var(--muted); max-width: 60ch; }
+.panel {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+  padding: 14px;
+}
+.eyebrow {
+  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--muted); margin: 0;
+}
+button {
+  font: inherit; font-weight: 600; font-size: 0.85rem; cursor: pointer;
+  border-radius: 8px; padding: 8px 12px; border: 1px solid var(--line);
+  background: var(--surface); color: var(--ink);
+}
+button.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Summary slip */
+.summary { border-top: 4px solid var(--accent); }
+.sum-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 10px; }
+.sum-head h2 { font-family: var(--font-display); font-size: 1.35rem; text-transform: uppercase; margin: 0; letter-spacing: 0.02em; }
+.example-chip {
+  display: inline-block; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  background: var(--pick-bg); color: var(--pick-ink); margin-bottom: 10px;
+}
+.sumlist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.sumrow {
+  display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) 3.2em; align-items: center;
+  gap: 10px; padding: 7px 0; border-bottom: 1px solid var(--line);
+}
+.sumrow:last-child { border-bottom: 0; }
+.sumrow .h { text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sumrow .a { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sumrow .sc {
+  font-family: var(--font-display); font-weight: 700; font-size: 1.3rem; min-width: 3.4em; text-align: center;
+  background: var(--pick-bg); color: var(--pick-ink); border-radius: 6px; padding: 0 6px;
+  font-variant-numeric: tabular-nums;
+}
+.sumrow .sc.empty { background: transparent; color: var(--muted); }
+.sumrow .ep { font-family: var(--font-data); font-size: 0.8rem; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+.sum-foot { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 0.85rem; color: var(--muted); }
+.sum-foot b { color: var(--ink); font-family: var(--font-data); font-weight: 500; }
+.copy-fallback { width: 100%; margin-top: 8px; font-family: var(--font-data); font-size: 0.8rem; min-height: 8em; background: var(--bg); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 8px; }
+
+/* Settings */
+.settings { display: flex; flex-direction: column; gap: 12px; }
+.set-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label, .lbl { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { border: 0; border-radius: 0; background: transparent; color: var(--muted); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+select { width: auto; }
+textarea { font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 7px; padding: 8px 9px; width: 100%; resize: vertical; }
+input[type="range"] { padding: 0; border: 0; background: transparent; accent-color: var(--accent); }
+.shuffle-field { flex: 1 1 220px; min-width: 0; }
+.feed { display: flex; flex-direction: column; gap: 10px; }
+.feed-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.feed-count { font-family: var(--font-data); font-size: 0.85rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.feed-list { display: flex; flex-direction: column; gap: 6px; }
+.feed-list details { border-top: 1px solid var(--line); padding-top: 6px; }
+.feed-list summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+.feed-list summary .n { color: var(--muted); font-weight: 400; font-size: 0.85rem; }
+.fx { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.fx:last-child { border-bottom: 0; }
+.fx .teams-txt { font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.fx .when { font-size: 0.78rem; color: var(--muted); }
+.fx .prices { font-family: var(--font-data); font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.fx button { grid-row: span 2; min-width: 5.2em; }
+.fx button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.eyebrow-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.eyebrow-row .linkbtn { color: var(--muted); font-size: 0.78rem; }
+.fill { display: flex; flex-direction: column; gap: 12px; }
+.fill-title { font-family: var(--font-display); font-size: 1.2rem; text-transform: uppercase; letter-spacing: 0.02em; margin: 0 0 4px; }
+.fill-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.filebtn { font-weight: 600; font-size: 0.85rem; cursor: pointer; border-radius: 8px; padding: 8px 12px; border: 1px solid var(--accent); color: var(--accent); background: var(--surface); }
+input.visually-hidden { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+input.visually-hidden:focus-visible + span, .filebtn:focus-within { outline: 2px solid var(--accent); }
+button:disabled { opacity: 0.55; cursor: default; }
+.linkbtn { background: none; border: 0; padding: 0 0 0 4px; color: inherit; text-decoration: underline; font-size: inherit; }
+input, select {
+  font: inherit; color: var(--ink); background: var(--bg); border: 1px solid var(--line);
+  border-radius: 7px; padding: 8px 9px; width: 100%; min-width: 0;
+}
+input.num { font-family: var(--font-data); font-size: 0.95rem; text-align: center; font-variant-numeric: tabular-nums; }
+input.small { width: 4.5em; }
+input.invalid { border-color: var(--bad); }
+
+/* Match cards */
+.matches { display: flex; flex-direction: column; gap: 14px; }
+.match { display: flex; flex-direction: column; gap: 12px; }
+.teams { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr); gap: 8px; align-items: center; }
+.teams input { font-weight: 600; }
+.teams .home { text-align: right; }
+.teams .v { font-family: var(--font-display); font-weight: 700; color: var(--muted); font-size: 1.1rem; }
+.oddsgrid { display: grid; grid-template-columns: 3fr 2fr; gap: 10px; }
+@media (max-width: 420px) { .oddsgrid { grid-template-columns: 1fr; } }
+.oddsgroup { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.oddsgroup .cells { display: grid; gap: 6px; }
+.oddsgroup .cells.c3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.oddsgroup .cells.c2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
+.cell { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.cell label { font-size: 0.7rem; color: var(--muted); text-align: center; letter-spacing: 0.04em; text-transform: uppercase; }
+.opt { font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+.out { border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px; }
+.out .hint { margin: 0; color: var(--muted); font-size: 0.85rem; }
+.pickrow { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.bigscore {
+  font-family: var(--font-display); font-weight: 700; font-size: 2.6rem; line-height: 1;
+  background: var(--pick-bg); color: var(--pick-ink); border-radius: 8px; padding: 6px 14px;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.bigscore .v { font-size: 1.4rem; margin: 0 6px; opacity: 0.7; }
+.stats { display: grid; grid-template-columns: repeat(3, auto); gap: 2px 16px; margin: 0; }
+.stats dt { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.stats dd { margin: 0; font-family: var(--font-data); font-size: 0.95rem; font-variant-numeric: tabular-nums; }
+.bar { display: flex; height: 22px; border-radius: 5px; overflow: hidden; font-size: 0.72rem; font-weight: 600; font-family: var(--font-data); }
+.bar span { display: flex; align-items: center; justify-content: center; color: #fff; min-width: 0; overflow: hidden; white-space: nowrap; }
+.bar .bh { background: var(--home); color: var(--accent-ink); }
+.bar .bd { background: var(--draw); }
+.bar .ba { background: var(--away); }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 0.82rem; color: var(--muted); }
+.meta b { font-family: var(--font-data); font-weight: 500; color: var(--ink); }
+.alts { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.82rem; }
+.alts .lbl { margin-right: 2px; }
+.chip { border: 1px solid var(--line); border-radius: 99px; padding: 5px 10px; font-family: var(--font-data); font-size: 0.8rem; font-weight: 500; white-space: nowrap; background: var(--surface); color: var(--ink); }
+.chip:hover { border-color: var(--accent); }
+.chip.top { border-color: var(--accent); color: var(--accent); }
+.override { margin: 0; font-size: 0.82rem; color: var(--pick-ink); background: var(--pick-bg); border-radius: 6px; padding: 6px 9px; }
+.mode-note { margin: 0; font-size: 0.82rem; color: var(--muted); max-width: 60ch; }
+.sum-foot .full { flex-basis: 100%; }
+details.grid summary { cursor: pointer; font-size: 0.82rem; font-weight: 600; color: var(--accent); }
+.gridscroll { overflow-x: auto; margin-top: 8px; }
+table.sg { border-collapse: collapse; font-family: var(--font-data); font-size: 0.72rem; font-variant-numeric: tabular-nums; }
+table.sg th { color: var(--muted); font-weight: 500; padding: 3px 5px; }
+table.sg td { text-align: center; padding: 5px 4px; min-width: 2.9em; border: 1px solid var(--surface); }
+table.sg td.pk { outline: 2px solid var(--pick-ink); outline-offset: -2px; font-weight: 700; }
+.axis { font-size: 0.7rem; color: var(--muted); margin-top: 4px; }
+
+details.method { font-size: 0.88rem; color: var(--muted); }
+details.method summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+details.method p { max-width: 65ch; margin: 8px 0 0; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .bigscore, .sumrow .sc { transition: background-color .2s; }
+}
+</style>
+</head>
+<body>
+
+<main class="wrap">
+  <header>
+    <h1>Correct Score Picker</h1>
+    <p>Choose this week's six fixtures from the list, or type the odds in yourself. The model turns the odds into a probability for every scoreline and picks your scores.</p>
+  </header>
+
+  <section class="panel summary" aria-live="polite">
+    <div class="sum-head">
+      <h2>Your picks</h2>
+      <div class="actions" id="pick-actions">
+        <button type="button" id="best-picks">Best picks</button>
+        <button type="button" class="primary" id="shuffle">Shuffle</button>
+      </div>
+    </div>
+    <span class="example-chip" id="example-chip" hidden>Example odds. Replace with this round's prices.</span>
+    <ul class="sumlist" id="sumlist"></ul>
+    <div class="sum-foot" id="sumfoot"></div>
+  </section>
+
+  <section class="panel feed" id="feed-panel">
+    <div class="feed-head">
+      <h2 class="fill-title">This week's fixtures</h2>
+      <span class="feed-count" id="feed-count"></span>
+    </div>
+    <p class="mode-note" id="feed-status">Loading odds…</p>
+    <div id="feed-list" class="feed-list"></div>
+  </section>
+
+  <section class="panel settings">
+    <div class="set-row">
+      <div class="field">
+        <span class="lbl">Game</span>
+        <div class="seg" role="group" aria-label="Game type">
+          <button type="button" id="mode-six" aria-pressed="true">6 Scores</button>
+          <button type="button" id="mode-points" aria-pressed="false">Points league</button>
+        </div>
+      </div>
+      <div class="field">
+        <span class="lbl">Odds format</span>
+        <div class="seg" role="group" aria-label="Odds format">
+          <button type="button" id="fmt-frac" aria-pressed="true">Fractional</button>
+          <button type="button" id="fmt-dec" aria-pressed="false">Decimal</button>
+        </div>
+      </div>
+    </div>
+    <div class="set-row" id="repeat-fields">
+      <div class="field">
+        <label for="max-repeat">Max uses of one score</label>
+        <select id="max-repeat">
+          <option value="0">No limit</option>
+          <option value="3">3 times</option>
+          <option value="2">2 times</option>
+          <option value="1">Once</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="min-dog">Underdog wins per shuffle</label>
+        <select id="min-dog">
+          <option value="0">Any number</option>
+          <option value="1">At least 1</option>
+          <option value="2">At least 2</option>
+          <option value="3">At least 3</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="crowd">Avoid popular scores</label>
+        <select id="crowd">
+          <option value="0">Off</option>
+          <option value="0.5">Some</option>
+          <option value="1">Strong</option>
+        </select>
+      </div>
+      <div class="field shuffle-field">
+        <label for="randomness">Shuffle randomness: <span id="randomness-out">In line with the odds</span></label>
+        <input type="range" id="randomness" min="0" max="10" step="1" value="3">
+        <span class="mode-note">Left sticks to the likeliest scores. The middle draws every score as often as the odds say it happens, upsets included. Right is close to random.</span>
+      </div>
+    </div>
+    <div class="set-row" id="pts-fields" hidden>
+      <div class="field">
+        <label for="pts-exact">Correct score pts</label>
+        <input id="pts-exact" class="num small" inputmode="decimal" value="5">
+      </div>
+      <div class="field">
+        <label for="pts-result">Correct result pts</label>
+        <input id="pts-result" class="num small" inputmode="decimal" value="2">
+      </div>
+    </div>
+    <p class="mode-note" id="mode-note"></p>
+    <div class="actions">
+      <button type="button" id="load-example">Load example</button>
+      <button type="button" id="clear-all">Clear all</button>
+    </div>
+  </section>
+
+  <div class="matches" id="matches"></div>
+
+  <details class="method panel">
+    <summary>How the picks are made</summary>
+    <p>The match odds and the over/under 2.5 goals odds are converted to probabilities, with the bookie's margin removed (power method, which corrects for longshots being overpriced).</p>
+    <p>The model then finds each team's expected goals that reproduce those probabilities, using a Dixon-Coles model. That is a Poisson goals model with a correction for 0-0, 1-0, 0-1 and 1-1, which plain Poisson gets wrong. The result is a probability for every scoreline.</p>
+    <p>In 6 Scores mode the pick is simply the most likely exact score in each game. The games are independent, so the chance of all six coming in is the six chances multiplied together, and that is highest when each pick is the most likely score. Tap another score to swap to it; the card shows how much of your jackpot chance the swap costs. A swap can make sense when the alternative is close in probability but likely picked by fewer people, because the jackpot is shared between winners.</p>
+    <p>Shuffle builds a random ticket weighted by the odds. Every score from 0-0 up to 5-2 can come up, including underdog wins, roughly as often as the odds say it happens. The randomness slider sharpens that towards the likeliest scores or flattens it towards pure chance. "Underdog wins per shuffle" forces at least that many upset results, choosing the games where an upset is most plausible.</p>
+    <p>"Avoid popular scores" penalises the scores most players are likely to pick: 2-1, 1-1, 2-0 and 1-0 to the favourite. Bet365 doesn't publish what players pick, so these popularity figures are an estimate, not data. It applies to both Best picks and Shuffle. It doesn't make a win more likely; it makes a win less likely to be shared.</p>
+    <p>The repeat limit caps how many times one score can appear across your six picks. When the limit bites, the app makes the swaps that cost the least overall jackpot chance, and the summary shows how much of the best possible chance you keep.</p>
+    <p>In Points league mode the pick is the score with the highest expected points: correct-score points × P(exact score) + result points × P(right result, wrong score). This favours the likeliest score inside the likeliest result, and in one-sided games it moves to 2-0 or 3-0 on its own.</p>
+    <p>Without over/under odds the model assumes a typical draw adjustment and fits goals from the match odds alone. It still works, but the goals total is less well pinned down.</p>
+    <p>Odds can be typed as 11/4, 6-4, evs or 3.75. A bare number like 2 is read as decimal odds.</p>
+    <p>The fixture list comes from The Odds API and is refreshed on Tuesday morning, Thursday and Friday evening, and Saturday morning. Each price is the middle (median) price across UK bookmakers, which is at least as accurate for the model as one bookie's price. Fixtures you've added pick up new prices automatically when the list refreshes.</p>
+  </details>
+</main>
+
+<script id="model">
+const MAXG = 10;
+function poisArr(l) {
+  const a = [Math.exp(-l)];
+  for (let k = 1; k <= MAXG; k++) a[k] = a[k - 1] * l / k;
+  return a;
+}
+function scoreGrid(l, m, rho) {
+  const ph = poisArr(l), pa = poisArr(m);
+  const g = []; let s = 0;
+  for (let i = 0; i <= MAXG; i++) {
+    g[i] = [];
+    for (let j = 0; j <= MAXG; j++) {
+      let t = 1;
+      if (i === 0 && j === 0) t = 1 - l * m * rho;
+      else if (i === 0 && j === 1) t = 1 + l * rho;
+      else if (i === 1 && j === 0) t = 1 + m * rho;
+      else if (i === 1 && j === 1) t = 1 - rho;
+      const p = ph[i] * pa[j] * Math.max(t, 0);
+      g[i][j] = p; s += p;
+    }
+  }
+  for (let i = 0; i <= MAXG; i++) for (let j = 0; j <= MAXG; j++) g[i][j] /= s;
+  return g;
+}
+function outcomes(g) {
+  let H = 0, D = 0, A = 0, O = 0;
+  for (let i = 0; i <= MAXG; i++) for (let j = 0; j <= MAXG; j++) {
+    const p = g[i][j];
+    if (i > j) H += p; else if (i < j) A += p; else D += p;
+    if (i + j >= 3) O += p;
+  }
+  return { H, D, A, O };
+}
+// Power-method margin removal: find k so that sum((1/odds)^k) = 1
+function devig(odds) {
+  const inv = odds.map(o => 1 / o);
+  let lo = 0.2, hi = 6;
+  for (let it = 0; it < 80; it++) {
+    const k = (lo + hi) / 2;
+    const s = inv.reduce((t, x) => t + Math.pow(x, k), 0);
+    if (s > 1) lo = k; else hi = k;
+  }
+  const k = (lo + hi) / 2;
+  const p = inv.map(x => Math.pow(x, k));
+  const s = p.reduce((a, b) => a + b, 0);
+  return p.map(x => x / s);
+}
+function nelderMead(f, x0, step, maxIt) {
+  const n = x0.length;
+  let S = [x0.slice()];
+  for (let i = 0; i < n; i++) { const x = x0.slice(); x[i] += step; S.push(x); }
+  let F = S.map(f);
+  const order = () => {
+    const idx = S.map((_, i) => i).sort((a, b) => F[a] - F[b]);
+    S = idx.map(i => S[i]); F = idx.map(i => F[i]);
+  };
+  for (let it = 0; it < maxIt; it++) {
+    order();
+    if (Math.abs(F[n] - F[0]) < 1e-15) break;
+    const c = new Array(n).fill(0);
+    for (let i = 0; i < n; i++) for (let d = 0; d < n; d++) c[d] += S[i][d] / n;
+    const pt = t => c.map((v, d) => v + t * (S[n][d] - v));
+    const xr = pt(-1), fr = f(xr);
+    if (fr < F[0]) {
+      const xe = pt(-2), fe = f(xe);
+      if (fe < fr) { S[n] = xe; F[n] = fe; } else { S[n] = xr; F[n] = fr; }
+    } else if (fr < F[n - 1]) {
+      S[n] = xr; F[n] = fr;
+    } else {
+      const xc = fr < F[n] ? pt(-0.5) : pt(0.5), fc = f(xc);
+      if (fc < Math.min(fr, F[n])) { S[n] = xc; F[n] = fc; }
+      else {
+        for (let i = 1; i <= n; i++) { S[i] = S[i].map((v, d) => S[0][d] + 0.5 * (v - S[0][d])); F[i] = f(S[i]); }
+      }
+    }
+  }
+  order();
+  return { x: S[0], f: F[0] };
+}
+const DEFAULT_RHO = -0.06;
+const rhoOf = r => -0.05 + 0.2 * Math.tanh(r); // keeps rho in [-0.25, 0.15]
+// market: {H, D, A, O|null} as margin-free probabilities
+function fitMatch(mk) {
+  const hasO = mk.O != null;
+  const f = x => {
+    const l = Math.exp(x[0]), m = Math.exp(x[1]);
+    if (l > 7 || m > 7 || l < 0.05 || m < 0.05) return 10;
+    const rho = hasO ? rhoOf(x[2]) : DEFAULT_RHO;
+    const o = outcomes(scoreGrid(l, m, rho));
+    let e = (o.H - mk.H) ** 2 + (o.D - mk.D) ** 2 + (o.A - mk.A) ** 2;
+    if (hasO) e += (o.O - mk.O) ** 2 + 1e-6 * x[2] * x[2];
+    return e;
+  };
+  const starts = [[1.5, 1.1], [1.1, 1.5], [2.3, 0.6], [0.6, 2.3], [1.2, 1.2]];
+  let best = null;
+  for (const [l, m] of starts) {
+    const x0 = hasO ? [Math.log(l), Math.log(m), 0] : [Math.log(l), Math.log(m)];
+    const r = nelderMead(f, x0, 0.35, 400);
+    if (!best || r.f < best.f) best = r;
+  }
+  const l = Math.exp(best.x[0]), m = Math.exp(best.x[1]);
+  const rho = hasO ? rhoOf(best.x[2]) : DEFAULT_RHO;
+  const g = scoreGrid(l, m, rho);
+  return { l, m, rho, g, o: outcomes(g), err: best.f };
+}
+function rankPicks(g, E, R) {
+  const o = outcomes(g);
+  const list = [];
+  for (let i = 0; i <= 7; i++) for (let j = 0; j <= 7; j++) {
+    const p = g[i][j];
+    const pr = i > j ? o.H : i < j ? o.A : o.D;
+    list.push({ i, j, p, pr, ep: E * p + R * (pr - p) });
+  }
+  list.sort((a, b) => b.ep - a.ep);
+  return list;
+}
+function parseOdds(raw) {
+  const s = String(raw || "").trim().toLowerCase();
+  if (!s) return null;
+  if (/^(ev|evs|evens|even)$/.test(s)) return 2;
+  let m = s.match(/^(\d+(?:\.\d+)?)\s*[\/\-]\s*(\d+(?:\.\d+)?)$/);
+  if (m) { const a = +m[1], b = +m[2]; return b > 0 && a > 0 ? 1 + a / b : NaN; }
+  if (/^\d*\.?\d+$/.test(s)) { const v = parseFloat(s); return v > 1 ? v : NaN; }
+  return NaN;
+}
+</script>
+
+<script>
+const STORE_KEY = "score-picker-v1";
+const N = 6;
+const EXAMPLE = {
+  fmt: "frac", mode: "six", maxRepeat: "2", E: "5", R: "2", example: true,
+  matches: [
+    { home: "Arsenal", away: "Burnley", h: "1/5", d: "6/1", a: "14/1", o: "4/7", u: "13/8" },
+    { home: "Brentford", away: "Fulham", h: "6/5", d: "5/2", a: "2/1", o: "4/6", u: "6/5" },
+    { home: "Everton", away: "Leeds", h: "13/10", d: "11/5", a: "9/4", o: "10/11", u: "4/5" },
+    { home: "Wolves", away: "Liverpool", h: "5/1", d: "4/1", a: "1/2", o: "4/7", u: "11/8" },
+    { home: "Hull", away: "Millwall", h: "7/5", d: "23/10", a: "2/1", o: "6/5", u: "4/6" },
+    { home: "Celtic", away: "Rangers", h: "4/5", d: "3/1", a: "3/1", o: "8/13", u: "5/4" }
+  ]
+};
+const blankMatch = () => ({ home: "", away: "", h: "", d: "", a: "", o: "", u: "" });
+let state;
+try { state = JSON.parse(localStorage.getItem(STORE_KEY)); } catch (e) { state = null; }
+if (!state || !Array.isArray(state.matches) || state.matches.length !== N) state = JSON.parse(JSON.stringify(EXAMPLE));
+if (!state.mode) state.mode = "six";
+if (state.maxRepeat == null) state.maxRepeat = "2";
+if (state.minDog == null) state.minDog = "1";
+if (state.crowd == null) state.crowd = "0";
+if (state.randomness == null) state.randomness = "3";
+const autoPick = new Array(N).fill(null);
+let ticketInfo = null;
+// Estimated share of players picking each score, oriented as favourite goals - underdog goals.
+// An estimate of crowd habits, not measured data.
+const POP = { "2-1": 20, "1-1": 17, "2-0": 15, "1-0": 11, "3-1": 8, "3-0": 6, "2-2": 3.5, "0-0": 3, "1-2": 3,
+  "0-1": 2, "3-2": 2, "4-0": 2, "4-1": 1.5, "0-2": 0.8, "2-3": 0.6, "1-3": 0.5, "0-3": 0.4, "3-3": 0.4 };
+const homeIsFav = r => r.fit.o.H >= r.fit.o.A;
+function popularity(r, c) {
+  const f = homeIsFav(r) ? c.i : c.j, d = homeIsFav(r) ? c.j : c.i;
+  return Math.max(POP[`${f}-${d}`] || 0, 2) / 100; // floor: unusual scores aren't assumed to be unpicked
+}
+// Best picks only trades away a limited share of a game's top chance for crowd avoidance
+const crowdFloor = () => (crowdS() >= 1 ? 0.5 : crowdS() > 0 ? 0.7 : 0);
+const isDogWin = (r, c) => (homeIsFav(r) ? c.j > c.i : c.i > c.j);
+const crowdS = () => parseFloat(state.crowd) || 0;
+const pickValue = (r, c) => Math.log(c.p) - crowdS() * Math.log(popularity(r, c));
+const eligible = r => r.ranked.filter(c => c.p >= crowdFloor() * r.ranked[0].p);
+const valueTop = r => eligible(r).reduce((b, c) => (pickValue(r, c) > pickValue(r, b) ? c : b), r.ranked[0]);
+// Best six-score ticket under the repeat limit: maximise the product of exact-score chances
+function optimise() {
+  autoPick.fill(null); ticketInfo = null;
+  if (state.mode !== "six") return;
+  const limit = parseInt(state.maxRepeat, 10) || 99;
+  const games = [];
+  for (let k = 0; k < N; k++) {
+    const r = results[k];
+    if (!r || r.status !== "ok") continue;
+    const sel = state.matches[k].sel;
+    const fixed = sel && r.ranked.find(x => `${x.i}-${x.j}` === sel);
+    const pool = eligible(r);
+    // keep a few fallbacks beyond the floor so the repeat limit can always be met
+    const cands = fixed ? [fixed] : [...pool.sort((a, b) => pickValue(r, b) - pickValue(r, a)),
+      ...r.ranked.filter(c => !pool.includes(c))].slice(0, 8);
+    games.push({ k, r, cands });
+  }
+  if (!games.length) return;
+  const suffix = new Array(games.length + 1).fill(0);
+  for (let i = games.length - 1; i >= 0; i--) suffix[i] = suffix[i + 1] + pickValue(games[i].r, games[i].cands[0]);
+  let bestVal = -Infinity, bestAssign = null;
+  const counts = {}, assign = [];
+  (function dfs(i, val) {
+    if (val + suffix[i] <= bestVal) return;
+    if (i === games.length) { bestVal = val; bestAssign = assign.slice(); return; }
+    for (const c of games[i].cands) {
+      const key = `${c.i}-${c.j}`;
+      if ((counts[key] || 0) >= limit) continue;
+      counts[key] = (counts[key] || 0) + 1; assign[i] = c;
+      dfs(i + 1, val + pickValue(games[i].r, c));
+      counts[key]--;
+    }
+  })(0, 0);
+  const bestPossible = games.reduce((s, g) => s + Math.log(g.r.ranked[0].p), 0);
+  const ratioOf = picks => Math.exp(picks.reduce((s, c) => s + Math.log(c.p), 0) - bestPossible);
+  if (!bestAssign) {
+    games.forEach(g => (autoPick[g.k] = g.cands[0]));
+    ticketInfo = { infeasible: true, ratio: ratioOf(games.map(g => g.cands[0])) };
+    return;
+  }
+  games.forEach((g, i) => (autoPick[g.k] = bestAssign[i]));
+  ticketInfo = { ratio: ratioOf(bestAssign) };
+}
+const results = new Array(N).fill(null);
+
+function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(state)); } catch (e) {} }
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = p => (p * 100).toFixed(p < 0.1 ? 1 : 0) + "%";
+const teamName = (m, side) => (side === "h" ? m.home : m.away).trim() || (side === "h" ? "Home" : "Away");
+
+function cardHTML(k) {
+  const cell = (key, label) =>
+    `<div class="cell"><label for="m${k}-${key}">${label}</label><input id="m${k}-${key}" data-k="${k}" data-key="${key}" class="num odds" autocomplete="off" autocapitalize="off" spellcheck="false"></div>`;
+  return `<article class="panel match" id="match-${k}">
+    <div class="eyebrow-row"><p class="eyebrow">Fixture ${k + 1}</p><button type="button" class="linkbtn" data-clear="${k}">Clear</button></div>
+    <div class="teams">
+      <input id="m${k}-home" data-k="${k}" data-key="home" class="home" placeholder="Home team" aria-label="Fixture ${k + 1} home team" autocomplete="off">
+      <span class="v">v</span>
+      <input id="m${k}-away" data-k="${k}" data-key="away" placeholder="Away team" aria-label="Fixture ${k + 1} away team" autocomplete="off">
+    </div>
+    <div class="oddsgrid">
+      <div class="oddsgroup"><span class="lbl">Match result</span>
+        <div class="cells c3">${cell("h", "Home")}${cell("d", "Draw")}${cell("a", "Away")}</div></div>
+      <div class="oddsgroup"><span class="lbl">Goals 2.5 <span class="opt">(optional)</span></span>
+        <div class="cells c2">${cell("o", "Over")}${cell("u", "Under")}</div></div>
+    </div>
+    <div class="out" id="m${k}-out"></div>
+    <details class="grid" id="m${k}-grid" hidden><summary>Scoreline probabilities</summary><div class="gridscroll" id="m${k}-table"></div></details>
+  </article>`;
+}
+
+function compute(k) {
+  const m = state.matches[k];
+  const v = {};
+  let bad = false;
+  for (const key of ["h", "d", "a", "o", "u"]) {
+    v[key] = parseOdds(m[key]);
+    const el = document.getElementById(`m${k}-${key}`);
+    const invalid = Number.isNaN(v[key]);
+    el.classList.toggle("invalid", invalid);
+    if (invalid) bad = true;
+  }
+  const need = [v.h, v.d, v.a];
+  if (bad) return { status: "bad" };
+  if (need.some(x => x == null)) return { status: "missing" };
+  const [H, D, A] = devig(need);
+  let O = null, ouNote = false;
+  if (v.o != null && v.u != null) O = devig([v.o, v.u])[0];
+  else if (v.o != null || v.u != null) ouNote = true;
+  const fit = fitMatch({ H, D, A, O });
+  const E = parseFloat(state.E) || 0, R = parseFloat(state.R) || 0;
+  const ranked = rankPicks(fit.g, E, R);
+  if (state.mode === "six") ranked.sort((a, b) => b.p - a.p);
+  return { status: "ok", fit, ranked, hasOU: O != null, ouNote };
+}
+function chosen(k) {
+  const r = results[k];
+  if (!r || r.status !== "ok") return null;
+  if (autoPick[k]) return autoPick[k];
+  const sel = state.matches[k].sel;
+  return (sel && r.ranked.find(x => `${x.i}-${x.j}` === sel)) || r.ranked[0];
+}
+
+function renderCard(k) {
+  const r = results[k];
+  const out = document.getElementById(`m${k}-out`);
+  const det = document.getElementById(`m${k}-grid`);
+  if (r.status !== "ok") {
+    det.hidden = true;
+    out.innerHTML = `<p class="hint">${r.status === "bad"
+      ? "One of the odds can't be read. Use a format like 11/4, evs or 3.75."
+      : "Enter home, draw and away odds to get a pick."}</p>`;
+    return;
+  }
+  const m = state.matches[k];
+  const six = state.mode === "six";
+  const top = r.ranked[0], best = chosen(k);
+  const alts = r.ranked.filter(x => x !== best).slice(0, six ? 5 : 3);
+  const o = r.fit.o;
+  const minW = p => (p < 0.07 ? "" : pct(p));
+  const statBlock = six
+    ? `<dt>Exact</dt><dt>Result</dt><dt>Rank</dt>
+       <dd>${pct(best.p)}</dd><dd>${pct(best.pr)}</dd><dd>#${r.ranked.indexOf(best) + 1}</dd>`
+    : `<dt>Exp. pts</dt><dt>Exact</dt><dt>Result</dt>
+       <dd>${best.ep.toFixed(2)}</dd><dd>${pct(best.p)}</dd><dd>${pct(best.pr)}</dd>`;
+  const keep = Math.round((best.p / r.ranked.reduce((mx, x) => Math.max(mx, x.p), 0)) * 100);
+  const manual = !!m.sel && `${best.i}-${best.j}` === m.sel;
+  const dog = six && isDogWin(r, best) ? " Underdog shout." : "";
+  const why = crowdS() > 0 && best === valueTop(r) ? "to avoid a popular pick" : "to stay within the repeat limit";
+  const overrideNote = manual
+    ? (best === top && !dog ? "" :
+      `<p class="override">${m.shuf ? "Shuffled pick." : `Swapped from ${top.i} v ${top.j}.`}${dog} Keeps ${keep}% of this game's best exact-score chance.<button type="button" class="linkbtn" data-reset="${k}">Undo</button></p>`)
+    : best !== top
+      ? `<p class="override">Moved from ${top.i} v ${top.j} ${why}.${dog} Keeps ${keep}% of this game's best exact-score chance.</p>`
+      : "";
+  out.innerHTML = `
+    <div class="pickrow">
+      <div class="bigscore" aria-label="Pick ${best.i} v ${best.j}">${best.i}<span class="v">v</span>${best.j}</div>
+      <dl class="stats">${statBlock}</dl>
+    </div>
+    ${overrideNote}
+    <div class="bar" role="img" aria-label="Home ${pct(o.H)}, draw ${pct(o.D)}, away ${pct(o.A)}">
+      <span class="bh" style="width:${o.H * 100}%">${minW(o.H)}</span>
+      <span class="bd" style="width:${o.D * 100}%">${minW(o.D)}</span>
+      <span class="ba" style="width:${o.A * 100}%">${minW(o.A)}</span>
+    </div>
+    <div class="meta">
+      <span>Expected goals <b>${r.fit.l.toFixed(2)}</b> v <b>${r.fit.m.toFixed(2)}</b></span>
+      <span>Over 2.5 <b>${pct(o.O)}</b></span>
+    </div>
+    <div class="alts"><span class="lbl">Tap to swap</span>${alts.map(a =>
+      `<button type="button" class="chip${a === top ? " top" : ""}" data-k="${k}" data-sel="${a.i}-${a.j}">${a.i} v ${a.j} · ${six ? pct(a.p) : a.ep.toFixed(2)}</button>`).join("")}</div>
+    ${r.hasOU ? "" : `<p class="hint">${r.ouNote ? "Add both over and under 2.5 odds to use them." : "Add over/under 2.5 odds to pin down the goals total."}</p>`}`;
+  det.hidden = false;
+  const g = r.fit.g;
+  let max = 0;
+  for (let i = 0; i <= 5; i++) for (let j = 0; j <= 5; j++) max = Math.max(max, g[i][j]);
+  let t = `<table class="sg"><thead><tr><th></th>${[0,1,2,3,4,5].map(j => `<th scope="col">${j}</th>`).join("")}</tr></thead><tbody>`;
+  for (let i = 0; i <= 5; i++) {
+    t += `<tr><th scope="row">${i}</th>`;
+    for (let j = 0; j <= 5; j++) {
+      const p = g[i][j], a = Math.round((p / max) * 70);
+      const pk = i === best.i && j === best.j ? " pk" : "";
+      t += `<td class="${pk.trim()}" style="background:color-mix(in srgb, var(--accent) ${a}%, var(--surface))">${(p * 100).toFixed(1)}</td>`;
+    }
+    t += "</tr>";
+  }
+  t += `</tbody></table><div class="axis">Rows: ${esc(teamName(m, "h"))} goals. Columns: ${esc(teamName(m, "a"))} goals. Values in %.</div>`;
+  document.getElementById(`m${k}-table`).innerHTML = t;
+}
+
+function renderSummary() {
+  document.getElementById("example-chip").hidden = !state.example;
+  const six = state.mode === "six";
+  let rows = "", totalEP = 0, count = 0, dogs = 0;
+  const ps = [];
+  state.matches.forEach((m, k) => {
+    const b = chosen(k);
+    const ok = !!b;
+    if (ok) { totalEP += b.ep; ps.push(b.p); count++; if (isDogWin(results[k], b)) dogs++; }
+    rows += `<li class="sumrow"><span class="h">${esc(teamName(m, "h"))}</span>
+      <span class="sc${ok ? "" : " empty"}">${ok ? `${b.i} v ${b.j}` : "– v –"}</span>
+      <span class="a">${esc(teamName(m, "a"))}</span>
+      <span class="ep">${ok ? (six ? pct(b.p) : b.ep.toFixed(2)) : ""}</span></li>`;
+  });
+  document.getElementById("sumlist").innerHTML = rows;
+  const E = parseFloat(state.E) || 0;
+  const foot = document.getElementById("sumfoot");
+  if (!count) { foot.innerHTML = "<span>Add odds to see your chances.</span>"; return; }
+  // distribution of number of correct scores (independent games)
+  let dist = [1];
+  for (const p of ps) {
+    const nd = new Array(dist.length + 1).fill(0);
+    dist.forEach((q, c) => { nd[c] += q * (1 - p); nd[c + 1] += q * p; });
+    dist = nd;
+  }
+  const atLeast = n => dist.slice(n).reduce((a, b) => a + b, 0);
+  const oneIn = p => p > 0 ? `1 in ${Math.round(1 / p).toLocaleString("en-GB")}` : "–";
+  if (count < N) {
+    foot.innerHTML = `<span>${count} of ${N} fixtures priced</span>`;
+    return;
+  }
+  if (six) {
+    foot.innerHTML =
+      `<span class="full">All six correct: <b>${oneIn(atLeast(6))}</b></span>` +
+      `<span>5+ correct: <b>${oneIn(atLeast(5))}</b></span>` +
+      `<span>4+ correct: <b>${oneIn(atLeast(4))}</b></span>` +
+      `<span>3+ correct: <b>${pct(atLeast(3))}</b></span>` +
+      `<span>Underdog wins: <b>${dogs}</b></span>` +
+      (ticketInfo && ticketInfo.infeasible
+        ? `<span class="full">Your own swaps use one score more often than the repeat limit allows, so the limit isn't applied.</span>`
+        : ticketInfo && ticketInfo.ratio < 0.9995
+          ? `<span class="full">This ticket is <b>${ticketInfo.ratio >= 0.1 ? Math.round(ticketInfo.ratio * 100) + "%" : "1/" + Math.round(1 / ticketInfo.ratio).toLocaleString("en-GB")}</b> as likely to win as the single most likely ticket.</span>`
+          : "");
+  } else {
+    foot.innerHTML = `<span>Expected points <b>${totalEP.toFixed(1)}</b> of ${(E * count).toFixed(0)}</span>` +
+      `<span>All six exact: <b>${oneIn(atLeast(6))}</b></span>`;
+  }
+}
+
+function fillInputs() {
+  state.matches.forEach((m, k) => {
+    for (const key of ["home", "away", "h", "d", "a", "o", "u"]) document.getElementById(`m${k}-${key}`).value = m[key] || "";
+  });
+  document.getElementById("pts-exact").value = state.E;
+  document.getElementById("pts-result").value = state.R;
+  setFmt(state.fmt || "frac", false);
+  document.getElementById("max-repeat").value = state.maxRepeat;
+  document.getElementById("min-dog").value = state.minDog;
+  document.getElementById("crowd").value = state.crowd;
+  setMode(state.mode || "six", false);
+}
+function setMode(md, rerender = true) {
+  state.mode = md;
+  document.getElementById("mode-six").setAttribute("aria-pressed", md === "six");
+  document.getElementById("mode-points").setAttribute("aria-pressed", md === "points");
+  document.getElementById("pts-fields").hidden = md === "six";
+  document.getElementById("repeat-fields").hidden = md !== "six";
+  document.getElementById("pick-actions").hidden = md !== "six";
+  document.getElementById("mode-note").textContent = md === "six"
+    ? "Best picks gives the single most likely ticket. Shuffle gives a random ticket weighted by the odds, using the settings below."
+    : "Picks the score with the most expected points per game, for season-long points games.";
+  if (rerender) { save(); renderAll(); }
+}
+function setFmt(f, persist = true) {
+  state.fmt = f;
+  document.getElementById("fmt-frac").setAttribute("aria-pressed", f === "frac");
+  document.getElementById("fmt-dec").setAttribute("aria-pressed", f === "dec");
+  document.querySelectorAll("input.odds").forEach(el => {
+    el.inputMode = f === "dec" ? "decimal" : "text";
+    el.placeholder = f === "dec" ? "2.50" : "6/4";
+  });
+  if (persist) save();
+}
+function redraw() { optimise(); for (let k = 0; k < N; k++) renderCard(k); renderSummary(); }
+function update(ks) { ks.forEach(k => (results[k] = compute(k))); redraw(); }
+function renderAll() { update([...Array(N).keys()]); }
+
+document.getElementById("matches").innerHTML = Array.from({ length: N }, (_, k) => cardHTML(k)).join("");
+fillInputs();
+renderAll();
+
+const timers = {};
+document.getElementById("matches").addEventListener("input", e => {
+  const el = e.target; if (!el.dataset.key) return;
+  const k = +el.dataset.k;
+  state.matches[k][el.dataset.key] = el.value;
+  if (!["home", "away"].includes(el.dataset.key)) { state.matches[k].sel = ""; state.matches[k].fid = ""; }
+  state.example = false;
+  save();
+  clearTimeout(timers[k]);
+  const isTeam = el.dataset.key === "home" || el.dataset.key === "away";
+  timers[k] = setTimeout(() => update([k]), isTeam ? 0 : 200);
+});
+for (const [id, key] of [["pts-exact", "E"], ["pts-result", "R"]]) {
+  document.getElementById(id).addEventListener("input", e => {
+    state[key] = e.target.value; save();
+    clearTimeout(timers.pts); timers.pts = setTimeout(renderAll, 250);
+  });
+}
+document.getElementById("matches").addEventListener("click", e => {
+  const reset = e.target.closest("button[data-reset]");
+  if (reset) { state.matches[+reset.dataset.reset].sel = ""; save(); redraw(); return; }
+  const btn = e.target.closest("button.chip"); if (!btn) return;
+  state.matches[+btn.dataset.k].sel = btn.dataset.sel;
+  state.matches[+btn.dataset.k].shuf = false;
+  save(); redraw();
+});
+document.getElementById("max-repeat").addEventListener("change", e => {
+  state.maxRepeat = e.target.value; save(); redraw();
+});
+document.getElementById("min-dog").addEventListener("change", e => { state.minDog = e.target.value; save(); });
+document.getElementById("crowd").addEventListener("change", e => { state.crowd = e.target.value; save(); redraw(); });
+
+// Shuffle: a random ticket weighted by the odds.
+// Weight = P(score)^(1/T) × popularity^(-crowd). T = 1 draws scores as often as the odds say they happen.
+const randomness = document.getElementById("randomness");
+const randomnessOut = document.getElementById("randomness-out");
+const tempOf = v => { v = +v; return v <= 3 ? 0.35 + 0.65 * v / 3 : 1 + 2 * (v - 3) / 7; };
+const randLabel = v => (v <= 1 ? "Mostly the likeliest scores" : v <= 4 ? "In line with the odds" : v <= 7 ? "Loose" : "Near random");
+randomness.value = state.randomness;
+randomnessOut.textContent = randLabel(+randomness.value);
+randomness.addEventListener("input", () => {
+  state.randomness = randomness.value; randomnessOut.textContent = randLabel(+randomness.value); save();
+});
+function weightedIndex(ws) {
+  const t = ws.reduce((a, b) => a + b, 0);
+  let x = Math.random() * t;
+  for (let i = 0; i < ws.length; i++) { x -= ws[i]; if (x <= 0) return i; }
+  return ws.length - 1;
+}
+function shuffleTicket() {
+  const T = tempOf(state.randomness), s = crowdS();
+  const limit = parseInt(state.maxRepeat, 10) || 99;
+  const pools = [];
+  for (let k = 0; k < N; k++) {
+    const r = results[k];
+    if (!r || r.status !== "ok") continue;
+    const all = r.ranked.filter(c => c.i <= 5 && c.j <= 5 && c.i + c.j <= 7);
+    const dogs = all.filter(c => isDogWin(r, c));
+    const dogP = dogs.reduce((a, c) => a + c.p, 0);
+    pools.push({ k, r, all, dogs, dogP });
+  }
+  if (!pools.length) return;
+  const minDog = Math.min(parseInt(state.minDog, 10) || 0, pools.length);
+  const w = (r, c) => Math.pow(c.p, 1 / T) * Math.pow(popularity(r, c), -s);
+  let pick = null;
+  for (let attempt = 0; attempt < 400; attempt++) {
+    // Choose which games must be upsets, favouring games where an upset is more plausible
+    const forced = new Set(), avail = pools.map((_, i) => i);
+    for (let n = 0; n < minDog; n++) {
+      const idx = weightedIndex(avail.map(i => Math.pow(pools[i].dogP, 1 / T)));
+      forced.add(avail[idx]); avail.splice(idx, 1);
+    }
+    const draw = pools.map((g, i) => {
+      const cands = forced.has(i) ? g.dogs : g.all;
+      return cands[weightedIndex(cands.map(c => w(g.r, c)))];
+    });
+    const counts = {};
+    const fits = draw.every(c => (counts[`${c.i}-${c.j}`] = (counts[`${c.i}-${c.j}`] || 0) + 1) <= limit);
+    if (!pick || fits) pick = { draw, forced };
+    if (fits) break;
+  }
+  // If no draw fit the repeat limit, keep the allowed number of each score (upsets first)
+  // and leave the rest to the limit, which picks the best alternative.
+  const keepCount = {};
+  const order = pools.map((_, i) => i).sort(() => Math.random() - 0.5)
+    .sort((a, b) => (pick.forced.has(b) ? 1 : 0) - (pick.forced.has(a) ? 1 : 0));
+  const keep = new Array(pools.length).fill(true);
+  for (const i of order) {
+    const c = pick.draw[i], key = `${c.i}-${c.j}`;
+    keepCount[key] = (keepCount[key] || 0) + 1;
+    if (keepCount[key] > limit) keep[i] = false;
+  }
+  pools.forEach((g, i) => {
+    const m = state.matches[g.k];
+    m.sel = keep[i] ? `${pick.draw[i].i}-${pick.draw[i].j}` : "";
+    m.shuf = keep[i];
+  });
+  save(); redraw();
+}
+document.getElementById("shuffle").addEventListener("click", shuffleTicket);
+document.getElementById("best-picks").addEventListener("click", () => {
+  state.matches.forEach(m => { m.sel = ""; m.shuf = false; }); save(); redraw();
+});
+
+// Weekly fixture list from odds.json (written by the GitHub Action)
+const feedList = document.getElementById("feed-list");
+const feedStatus = document.getElementById("feed-status");
+const feedCount = document.getElementById("feed-count");
+let feed = null, feedMsgTimer;
+const ukTime = (iso, opts) => new Date(iso).toLocaleString("en-GB", { timeZone: "Europe/London", ...opts });
+const isEmptySlot = m => !m.home && !m.away && !m.h && !m.d && !m.a;
+function feedBaseStatus() {
+  if (!feed) return "";
+  if (!feed.updated) return "No odds yet. They refresh on Tuesday morning, Thursday and Friday evening, and Saturday morning, or run the workflow on GitHub.";
+  const credits = feed.creditsRemaining != null ? ` · ${feed.creditsRemaining} API credits left` : "";
+  return `Odds updated ${ukTime(feed.updated, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}${credits}. Tap Add on six fixtures.`;
+}
+function flashFeed(msg) {
+  feedStatus.textContent = msg;
+  clearTimeout(feedMsgTimer);
+  feedMsgTimer = setTimeout(() => (feedStatus.textContent = feedBaseStatus()), 3500);
+}
+function renderFeed() {
+  const chosen = state.example ? 0 : state.matches.filter(m => !isEmptySlot(m)).length;
+  feedCount.textContent = `${chosen} of ${N} chosen`;
+  if (!feed) return;
+  if (!feed.fixtures.length) { feedList.innerHTML = ""; return; }
+  const openState = {};
+  feedList.querySelectorAll("details").forEach(d => (openState[d.dataset.league] = d.open));
+  const groups = new Map();
+  for (const f of feed.fixtures) {
+    if (!groups.has(f.league)) groups.set(f.league, []);
+    groups.get(f.league).push(f);
+  }
+  let html = "", first = true;
+  for (const [league, list] of groups) {
+    const open = league in openState ? openState[league] : first;
+    first = false;
+    html += `<details data-league="${esc(league)}"${open ? " open" : ""}><summary>${esc(league)} <span class="n">(${list.length})</span></summary>`;
+    for (const f of list) {
+      const added = !state.example && state.matches.some(m => m.fid === f.id);
+      const ou = f.o && f.u ? ` · O/U 2.5 ${f.o}/${f.u}` : "";
+      html += `<div class="fx">
+        <span class="teams-txt">${esc(f.home)} v ${esc(f.away)}</span>
+        <button type="button" data-fid="${esc(f.id)}" aria-pressed="${added}">${added ? "Added" : "Add"}</button>
+        <span><span class="when">${ukTime(f.kickoff, { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+        <span class="prices"> · ${f.h} / ${f.d} / ${f.a}${ou}</span></span>
+      </div>`;
+    }
+    html += "</details>";
+  }
+  feedList.innerHTML = html;
+}
+function fixtureToSlot(m, f) {
+  Object.assign(m, { home: f.home, away: f.away, h: f.h, d: f.d, a: f.a, o: f.o || "", u: f.u || "", fid: f.id });
+}
+feedList.addEventListener("click", e => {
+  const btn = e.target.closest("button[data-fid]");
+  if (!btn || !feed) return;
+  const f = feed.fixtures.find(x => x.id === btn.dataset.fid);
+  if (!f) return;
+  if (state.example) { state.matches = Array.from({ length: N }, blankMatch); state.example = false; }
+  const at = state.matches.findIndex(m => m.fid === f.id);
+  if (at >= 0) {
+    state.matches[at] = blankMatch();
+  } else {
+    const k = state.matches.findIndex(isEmptySlot);
+    if (k < 0) { flashFeed("All six fixtures are filled. Clear one first."); return; }
+    state.matches[k] = blankMatch();
+    fixtureToSlot(state.matches[k], f);
+  }
+  save(); fillInputs(); renderAll(); renderFeed();
+});
+document.getElementById("matches").addEventListener("click", e => {
+  const b = e.target.closest("button[data-clear]");
+  if (!b) return;
+  if (state.example) { state.matches = Array.from({ length: N }, blankMatch); state.example = false; }
+  else state.matches[+b.dataset.clear] = blankMatch();
+  save(); fillInputs(); renderAll(); renderFeed();
+});
+(async () => {
+  try {
+    const res = await fetch("odds.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(res.status);
+    feed = await res.json();
+    if (!Array.isArray(feed.fixtures)) feed.fixtures = [];
+  } catch (e) {
+    feedStatus.textContent = "Couldn't load the fixture list. You can still type odds in below.";
+    renderFeed();
+    return;
+  }
+  // Refresh prices for fixtures already added (keeps your picks)
+  let refreshed = 0;
+  if (!state.example) {
+    for (const m of state.matches) {
+      const f = m.fid && feed.fixtures.find(x => x.id === m.fid);
+      if (!f) continue;
+      if (["h", "d", "a", "o", "u"].some(key => (m[key] || "") !== (f[key] || ""))) {
+        for (const key of ["h", "d", "a", "o", "u"]) m[key] = f[key] || "";
+        refreshed++;
+      }
+    }
+  }
+  if (refreshed) { save(); fillInputs(); renderAll(); }
+  feedStatus.textContent = feedBaseStatus() + (refreshed ? ` New prices applied to ${refreshed} of your fixtures.` : "");
+  renderFeed();
+})();
+document.getElementById("mode-six").addEventListener("click", () => setMode("six"));
+document.getElementById("mode-points").addEventListener("click", () => setMode("points"));
+document.getElementById("fmt-frac").addEventListener("click", () => setFmt("frac"));
+document.getElementById("fmt-dec").addEventListener("click", () => setFmt("dec"));
+document.getElementById("load-example").addEventListener("click", () => {
+  state = JSON.parse(JSON.stringify(EXAMPLE)); save(); fillInputs(); renderAll(); renderFeed();
+});
+const clearBtn = document.getElementById("clear-all");
+let clearArmed = false, clearTimer;
+clearBtn.addEventListener("click", () => {
+  if (!clearArmed) {
+    clearArmed = true; clearBtn.textContent = "Tap again to clear";
+    clearTimer = setTimeout(() => { clearArmed = false; clearBtn.textContent = "Clear all"; }, 3000);
+    return;
+  }
+  clearTimeout(clearTimer); clearArmed = false; clearBtn.textContent = "Clear all";
+  state.matches = Array.from({ length: N }, blankMatch); state.example = false;
+  save(); fillInputs(); renderAll(); renderFeed();
+});
+</script>
+</body>
+</html>
