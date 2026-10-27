@@ -6,7 +6,11 @@
 
 import { writeFile, readFile } from "node:fs/promises";
 
-const LEAGUES = [
+// Fallback list, used only if the competitions list can't be loaded.
+// Normally the script asks the API which English and Scottish competitions
+// are active (Carabao Cup, FA Cup and Scottish cups included) — that call is free.
+const COMPETITION_KEY = /^soccer_(epl|efl|england|fa_cup|spl|scotland)/;
+const FALLBACK_LEAGUES = [
   { key: "soccer_epl", name: "Premier League" },
   { key: "soccer_efl_champ", name: "Championship" },
   { key: "soccer_england_league1", name: "League One" },
@@ -14,6 +18,8 @@ const LEAGUES = [
   { key: "soccer_spl", name: "Scottish Premiership" },
   { key: "soccer_fa_cup", name: "FA Cup" },
 ];
+const NAMES = Object.fromEntries(FALLBACK_LEAGUES.map(l => [l.key, l.name]));
+NAMES.soccer_england_efl_cup = "Carabao Cup";
 const DAYS_AHEAD = 10;
 const OUT = new URL("../odds.json", import.meta.url);
 
@@ -93,6 +99,26 @@ function summarise(ev, league) {
   };
 }
 
+async function activeCompetitions() {
+  if (mockDir) return FALLBACK_LEAGUES;
+  try {
+    const url = new URL("https://api.the-odds-api.com/v4/sports");
+    url.search = new URLSearchParams({ apiKey: key }).toString();
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const list = (await res.json())
+      .filter(s => s.active && !s.has_outrights && COMPETITION_KEY.test(s.key))
+      .map(s => ({ key: s.key, name: NAMES[s.key] || s.title }));
+    if (!list.length) throw new Error("no matching competitions");
+    return list;
+  } catch (e) {
+    console.warn(`Couldn't load the competitions list (${e.message}); using the fallback list.`);
+    return FALLBACK_LEAGUES;
+  }
+}
+
+const LEAGUES = await activeCompetitions();
+console.log("Competitions:", LEAGUES.map(l => `${l.name} (${l.key})`).join(", "));
 const now = Date.now();
 const horizon = now + DAYS_AHEAD * 864e5;
 const fixtures = [];

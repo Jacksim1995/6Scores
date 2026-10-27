@@ -23,5 +23,5 @@ Tuesday 08:00, Thursday 18:00, Friday 18:00 and Saturday 08:00 (UTC). You can re
 
 - `index.html` – the app. Your chosen fixtures and picks are saved in your browser only.
 - `odds.json` – this week's fixtures and median UK bookmaker prices, written by the Action.
-- `scripts/fetch-odds.mjs` – the fetch script. Edit `LEAGUES` to change which competitions are pulled.
+- `scripts/fetch-odds.mjs` – the fetch script. Each run it asks the API which English and Scottish competitions are active (leagues and cups) and pulls those. Edit `COMPETITION_KEY` to change that.
 - `.github/workflows/odds.yml` – the schedule, fetch, and Pages deploy.
