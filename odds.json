@@ -1,6 +1,6 @@
 {
- "updated": "2026-11-12T23:09:31.115Z",
- "creditsRemaining": 422,
+ "updated": "2026-11-13T23:12:16.482Z",
+ "creditsRemaining": 410,
  "fixtures": [
   {
    "id": "7bf0d1f95bb9b2b6003386c82ba96b6a",
@@ -10,7 +10,7 @@
    "away": "Cheltenham Town",
    "h": "1.87",
    "d": "3.50",
-   "a": "3.80",
+   "a": "3.77",
    "o": "1.91",
    "u": "1.80",
    "books": 20
@@ -21,9 +21,9 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Wigan Athletic",
    "away": "Barnsley",
-   "h": "2.26",
-   "d": "3.58",
-   "a": "2.80",
+   "h": "2.30",
+   "d": "3.60",
+   "a": "2.70",
    "o": "1.55",
    "u": "2.30",
    "books": 20
@@ -35,37 +35,11 @@
    "home": "Wimbledon",
    "away": "Blackpool",
    "h": "2.62",
-   "d": "3.35",
+   "d": "3.40",
    "a": "2.50",
    "o": "1.75",
    "u": "1.95",
    "books": 20
-  },
-  {
-   "id": "e315dc04bd19f74df3199a20acf38004",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Leicester City",
-   "away": "Bradford City",
-   "h": "1.94",
-   "d": "3.50",
-   "a": "3.25",
-   "o": "1.62",
-   "u": "2.18",
-   "books": 3
-  },
-  {
-   "id": "d90bee9d1425fb4cebbb391add66d0ed",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Bromley FC",
-   "away": "Notts County",
-   "h": "2.70",
-   "d": "3.20",
-   "a": "2.38",
-   "o": "1.85",
-   "u": "1.85",
-   "books": 3
   },
   {
    "id": "56de4f6858f896d0278456d0f2f8988a",
@@ -73,64 +47,12 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Milton Keynes Dons",
    "away": "Burton Albion",
-   "h": "1.67",
-   "d": "3.98",
+   "h": "1.65",
+   "d": "4.00",
    "a": "4.50",
    "o": "1.63",
-   "u": "2.17",
+   "u": "2.19",
    "books": 20
-  },
-  {
-   "id": "7c4066bf032cae51ebc6ad81973efc55",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Luton",
-   "away": "Cambridge United",
-   "h": "1.66",
-   "d": "3.75",
-   "a": "4.30",
-   "o": "1.60",
-   "u": "2.23",
-   "books": 3
-  },
-  {
-   "id": "82da0980dcfc5af1d8436be9c3531d91",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Doncaster Rovers",
-   "away": "Leyton Orient",
-   "h": "2.38",
-   "d": "3.20",
-   "a": "3.02",
-   "o": "1.74",
-   "u": "1.90",
-   "books": 10
-  },
-  {
-   "id": "7147fa15092c5d85c5ff46f815e2d5ee",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Wycombe Wanderers",
-   "away": "Huddersfield Town",
-   "h": "3.10",
-   "d": "3.40",
-   "a": "2.17",
-   "o": "1.66",
-   "u": "2.08",
-   "books": 10
-  },
-  {
-   "id": "2a7644c3777bcd3ca72e318bb7799217",
-   "league": "League One",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Stevenage",
-   "away": "Mansfield Town",
-   "h": "2.40",
-   "d": "3.10",
-   "a": "2.89",
-   "o": "1.98",
-   "u": "1.73",
-   "books": 10
   },
   {
    "id": "77721ceba014237d5ab331aad5bd05ac",
@@ -140,7 +62,7 @@
    "away": "Plymouth Argyle",
    "h": "2.25",
    "d": "3.60",
-   "a": "2.86",
+   "a": "2.80",
    "o": "1.54",
    "u": "2.30",
    "books": 20
@@ -151,11 +73,11 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Stockport County FC",
    "away": "Reading",
-   "h": "1.85",
-   "d": "3.75",
-   "a": "3.75",
-   "o": "1.60",
-   "u": "2.23",
+   "h": "1.84",
+   "d": "3.77",
+   "a": "3.73",
+   "o": "1.58",
+   "u": "2.20",
    "books": 20
   },
   {
@@ -165,24 +87,11 @@
    "home": "Port Vale",
    "away": "Accrington Stanley",
    "h": "1.95",
-   "d": "3.33",
+   "d": "3.40",
    "a": "3.60",
    "o": "2.00",
    "u": "1.75",
    "books": 20
-  },
-  {
-   "id": "e637ea0237f583a1b24ab839d809d3e5",
-   "league": "League Two",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Walsall",
-   "away": "Barnet",
-   "h": "2.69",
-   "d": "3.45",
-   "a": "2.30",
-   "o": "1.60",
-   "u": "2.17",
-   "books": 10
   },
   {
    "id": "1cf6ac52aa2dbb22a0eeb97e0bc80579",
@@ -190,11 +99,11 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Bristol Rovers",
    "away": "Chesterfield FC",
-   "h": "2.80",
-   "d": "3.40",
+   "h": "2.88",
+   "d": "3.50",
    "a": "2.30",
    "o": "1.73",
-   "u": "2.02",
+   "u": "2.04",
    "books": 20
   },
   {
@@ -211,27 +120,14 @@
    "books": 20
   },
   {
-   "id": "58dfacfa366fb7b2d5d980ea4ed1d9eb",
-   "league": "League Two",
-   "kickoff": "2026-11-14T15:00:00Z",
-   "home": "Rotherham United",
-   "away": "Crawley Town",
-   "h": "1.88",
-   "d": "3.45",
-   "a": "3.40",
-   "o": "1.64",
-   "u": "2.14",
-   "books": 3
-  },
-  {
    "id": "f71d831db05c678e7208a069210cd59d",
    "league": "League Two",
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Crewe Alexandra",
    "away": "Newport County",
-   "h": "2.08",
-   "d": "3.33",
-   "a": "3.35",
+   "h": "2.05",
+   "d": "3.40",
+   "a": "3.30",
    "o": "1.91",
    "u": "1.83",
    "books": 20
@@ -242,9 +138,9 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Swindon Town",
    "away": "Grimsby Town",
-   "h": "3.23",
-   "d": "3.60",
-   "a": "2.01",
+   "h": "3.20",
+   "d": "3.70",
+   "a": "2.00",
    "o": "1.60",
    "u": "2.25",
    "books": 20
@@ -255,9 +151,9 @@
    "kickoff": "2026-11-14T15:00:00Z",
    "home": "Salford City",
    "away": "Northampton Town",
-   "h": "1.62",
-   "d": "3.80",
-   "a": "5.00",
+   "h": "1.57",
+   "d": "3.88",
+   "a": "5.25",
    "o": "1.85",
    "u": "1.85",
    "books": 20
@@ -269,8 +165,8 @@
    "home": "Shrewsbury Town",
    "away": "Oldham Athletic",
    "h": "2.50",
-   "d": "3.27",
-   "a": "2.67",
+   "d": "3.33",
+   "a": "2.64",
    "o": "1.95",
    "u": "1.83",
    "books": 20
@@ -302,17 +198,30 @@
    "books": 19
   },
   {
+   "id": "deb5feb11ba6d2e87bcf2f4183b255f3",
+   "league": "League One",
+   "kickoff": "2026-11-20T20:00:00Z",
+   "home": "Barnsley",
+   "away": "Sheffield Wednesday",
+   "h": "2.80",
+   "d": "3.55",
+   "a": "2.15",
+   "o": "",
+   "u": "",
+   "books": 5
+  },
+  {
    "id": "bed1f20084169c36d30d63f283640f79",
    "league": "Championship",
    "kickoff": "2026-11-21T12:30:00Z",
    "home": "Norwich City",
    "away": "Cardiff City",
-   "h": "1.71",
+   "h": "1.70",
    "d": "4.20",
-   "a": "3.88",
+   "a": "3.85",
    "o": "1.30",
    "u": "3.20",
-   "books": 18
+   "books": 19
   },
   {
    "id": "5d3dbb358ea091830f570b92cee04c38",
@@ -325,7 +234,7 @@
    "a": "6.50",
    "o": "1.50",
    "u": "2.40",
-   "books": 18
+   "books": 19
   },
   {
    "id": "063b1a482ff7c013b5c0e8e8af9a42ea",
@@ -333,12 +242,12 @@
    "kickoff": "2026-11-21T12:30:00Z",
    "home": "Millwall",
    "away": "Queens Park Rangers",
-   "h": "2.39",
-   "d": "3.45",
+   "h": "2.38",
+   "d": "3.40",
    "a": "2.70",
    "o": "1.73",
    "u": "2.00",
-   "books": 18
+   "books": 19
   },
   {
    "id": "6ef39b0fd8839f6e93a3de32523e9807",
@@ -346,12 +255,12 @@
    "kickoff": "2026-11-21T12:30:00Z",
    "home": "Manchester City",
    "away": "Fulham",
-   "h": "1.41",
-   "d": "4.80",
-   "a": "6.25",
+   "h": "1.40",
+   "d": "5.00",
+   "a": "6.75",
    "o": "1.44",
    "u": "2.50",
-   "books": 19
+   "books": 20
   },
   {
    "id": "57de0f27db6ae789cdb8c425f36880c9",
@@ -359,12 +268,12 @@
    "kickoff": "2026-11-21T15:00:00Z",
    "home": "Stoke City",
    "away": "Birmingham City",
-   "h": "2.80",
+   "h": "2.77",
    "d": "3.30",
    "a": "2.40",
    "o": "1.85",
    "u": "1.84",
-   "books": 17
+   "books": 18
   },
   {
    "id": "8f3d690e88a2e180a6025a6b8ddfedf9",
@@ -373,11 +282,11 @@
    "home": "Bolton Wanderers",
    "away": "Portsmouth",
    "h": "2.75",
-   "d": "3.33",
+   "d": "3.35",
    "a": "2.40",
    "o": "1.80",
-   "u": "1.92",
-   "books": 18
+   "u": "1.91",
+   "books": 19
   },
   {
    "id": "17b291f71f74a662eb4bcad1957db62c",
@@ -386,11 +295,11 @@
    "home": "Middlesbrough",
    "away": "Bristol City",
    "h": "1.36",
-   "d": "4.95",
+   "d": "4.90",
    "a": "7.00",
    "o": "1.44",
    "u": "2.50",
-   "books": 18
+   "books": 19
   },
   {
    "id": "88b33c34df3a5d9450602451e50dfcc9",
@@ -399,11 +308,11 @@
    "home": "Wolverhampton Wanderers",
    "away": "Charlton Athletic",
    "h": "1.30",
-   "d": "5.05",
+   "d": "5.00",
    "a": "8.50",
    "o": "1.55",
    "u": "2.30",
-   "books": 18
+   "books": 19
   },
   {
    "id": "476da082e4c07bd9fa21d352af37ee61",
@@ -416,7 +325,7 @@
    "a": "2.45",
    "o": "1.95",
    "u": "1.75",
-   "books": 18
+   "books": 19
   },
   {
    "id": "7a8f99dc133efc267e941f67f5f59301",
@@ -425,11 +334,11 @@
    "home": "West Ham United",
    "away": "Preston North End",
    "h": "1.19",
-   "d": "6.75",
+   "d": "6.50",
    "a": "11.00",
    "o": "1.33",
    "u": "3.10",
-   "books": 18
+   "books": 19
   },
   {
    "id": "aab9ac008800f93bc7716756bd118cb2",
@@ -438,11 +347,11 @@
    "home": "Sheffield United",
    "away": "Watford",
    "h": "1.60",
-   "d": "3.90",
+   "d": "3.88",
    "a": "5.00",
-   "o": "1.71",
-   "u": "2.02",
-   "books": 17
+   "o": "1.73",
+   "u": "2.00",
+   "books": 18
   },
   {
    "id": "e315e08a4b8535c45555a9292f4f2335",
@@ -455,7 +364,7 @@
    "a": "2.70",
    "o": "1.92",
    "u": "1.80",
-   "books": 17
+   "books": 18
   },
   {
    "id": "b8d6ab6ecc8bb356c6335d3f417d0ecf",
@@ -464,11 +373,11 @@
    "home": "Aston Villa",
    "away": "Sunderland",
    "h": "1.73",
-   "d": "3.80",
-   "a": "4.35",
-   "o": "1.73",
+   "d": "3.77",
+   "a": "4.33",
+   "o": "1.75",
    "u": "2.00",
-   "books": 19
+   "books": 20
   },
   {
    "id": "cf68da11fa604c13fc9ef3219fad0314",
@@ -477,11 +386,11 @@
    "home": "Bournemouth",
    "away": "Nottingham Forest",
    "h": "2.00",
-   "d": "3.50",
-   "a": "3.60",
-   "o": "1.80",
+   "d": "3.58",
+   "a": "3.50",
+   "o": "1.77",
    "u": "1.95",
-   "books": 19
+   "books": 20
   },
   {
    "id": "ac6cf70520a83c0949b4003bde53c709",
@@ -494,7 +403,7 @@
    "a": "3.90",
    "o": "1.71",
    "u": "2.05",
-   "books": 19
+   "books": 20
   },
   {
    "id": "9f38413bdad666e2d2dfcc574dd12e66",
@@ -502,12 +411,12 @@
    "kickoff": "2026-11-21T15:00:00Z",
    "home": "Coventry City",
    "away": "Crystal Palace",
-   "h": "2.37",
+   "h": "2.35",
    "d": "3.50",
    "a": "2.75",
    "o": "1.67",
    "u": "2.12",
-   "books": 19
+   "books": 20
   },
   {
    "id": "e67ee3a6f93bb90b8aefcf3dd204477c",
@@ -515,12 +424,12 @@
    "kickoff": "2026-11-21T15:00:00Z",
    "home": "Tottenham Hotspur",
    "away": "Ipswich Town",
-   "h": "1.53",
+   "h": "1.52",
    "d": "4.33",
    "a": "5.50",
    "o": "1.56",
    "u": "2.30",
-   "books": 19
+   "books": 20
   },
   {
    "id": "d46354891556c171bd9be13191660a88",
@@ -554,8 +463,8 @@
    "kickoff": "2026-11-21T15:00:00Z",
    "home": "Hibernian",
    "away": "Dundee United",
-   "h": "1.84",
-   "d": "3.75",
+   "h": "1.85",
+   "d": "3.77",
    "a": "3.60",
    "o": "1.58",
    "u": "2.27",
@@ -568,8 +477,8 @@
    "home": "Falkirk F.C.",
    "away": "St Johnstone",
    "h": "1.84",
-   "d": "3.55",
-   "a": "3.75",
+   "d": "3.60",
+   "a": "3.70",
    "o": "1.72",
    "u": "2.05",
    "books": 15
@@ -581,11 +490,11 @@
    "home": "Newcastle United",
    "away": "Arsenal",
    "h": "5.00",
-   "d": "4.00",
+   "d": "4.05",
    "a": "1.57",
    "o": "1.66",
    "u": "2.10",
-   "books": 19
+   "books": 20
   },
   {
    "id": "bfef225cbe565a2f9917cc90310f1f45",
@@ -593,12 +502,12 @@
    "kickoff": "2026-11-21T17:45:00Z",
    "home": "Dundee FC",
    "away": "Hearts",
-   "h": "3.50",
+   "h": "3.40",
    "d": "3.75",
-   "a": "1.89",
+   "a": "1.90",
    "o": "1.50",
    "u": "2.40",
-   "books": 16
+   "books": 17
   },
   {
    "id": "c67bca364d375bd82ccd4c7720505e2a",
@@ -611,7 +520,7 @@
    "a": "1.53",
    "o": "1.50",
    "u": "2.45",
-   "books": 16
+   "books": 17
   },
   {
    "id": "9176cbaec3565e688e603baec257e246",
@@ -619,12 +528,12 @@
    "kickoff": "2026-11-22T12:00:00Z",
    "home": "Burnley",
    "away": "Blackburn Rovers",
-   "h": "1.84",
+   "h": "1.83",
    "d": "3.60",
    "a": "3.80",
    "o": "1.70",
    "u": "2.04",
-   "books": 15
+   "books": 16
   },
   {
    "id": "230a356290e1a358e9dd2f7fa23de3b9",
@@ -637,7 +546,7 @@
    "a": "1.50",
    "o": "1.61",
    "u": "2.15",
-   "books": 19
+   "books": 20
   },
   {
    "id": "4c08b213ed416e8f41e038f42a42b962",
@@ -647,9 +556,22 @@
    "away": "Manchester United",
    "h": "1.73",
    "d": "4.00",
-   "a": "4.10",
+   "a": "4.00",
    "o": "1.49",
    "u": "2.48",
+   "books": 20
+  },
+  {
+   "id": "aa77e2a08a1a003b0bbb62a5f8e8ae42",
+   "league": "Premier League",
+   "kickoff": "2026-11-23T20:00:00Z",
+   "home": "Brentford",
+   "away": "Everton",
+   "h": "2.00",
+   "d": "3.60",
+   "a": "3.40",
+   "o": "1.70",
+   "u": "2.05",
    "books": 19
   }
  ]
